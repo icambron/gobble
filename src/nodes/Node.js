@@ -46,6 +46,10 @@ export default class Node extends EventEmitter2 {
 		return build( this, options );
 	}
 
+	pipe ( f ) {
+		return f(this);
+	}
+
 	createWatchTask () {
 		const node = this;
 		const watchTask = new EventEmitter2({ wildcard: true });

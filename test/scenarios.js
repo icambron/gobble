@@ -564,5 +564,27 @@ module.exports = function () {
 				assert.ok( /could not process input/.test( err.message ) );
 			}
 		});
+
+		it( 'pipes transformations', function () {
+			var source = gobble( 'tmp/foo' ), count = 0;
+
+			function checkOptions ( input, options ) {
+				assert.equal( options.foo, 'bar' );
+				options.foo = 'baz';
+				count++;
+
+				return input;
+			}
+
+			checkOptions.defaults = { foo: 'bar' };
+
+			task = source.pipe( function(s) { return s.transform(checkOptions); } ).build({
+				dest: 'tmp/output'
+			});
+
+			return task.then( function () {
+				assert.equal( count, 3 );
+			});
+		});
 	});
 };

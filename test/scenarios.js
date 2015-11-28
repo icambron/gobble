@@ -566,24 +566,38 @@ module.exports = function () {
 		});
 
 		it( 'pipes transformations', function () {
-			var source = gobble( 'tmp/foo' ), count = 0;
+			var source = gobble( 'tmp/foo' ), called = false;
 
-			function checkOptions ( input, options ) {
-				assert.equal( options.foo, 'bar' );
-				options.foo = 'baz';
-				count++;
-
+			function checkCalled ( input, options ) {
+				called = true;
+				assert.equal( options.foo, null );
 				return input;
 			}
 
-			checkOptions.defaults = { foo: 'bar' };
-
-			task = source.pipe( function(s) { return s.transform(checkOptions); } ).build({
+			task = source.pipe( function(s) { return s.transform( checkCalled ); } ).build({
 				dest: 'tmp/output'
 			});
 
 			return task.then( function () {
-				assert.equal( count, 3 );
+				assert.equal(true, called);
+			});
+		});
+
+		it( 'provides options to pipe functions', function () {
+			var source = gobble( 'tmp/foo' ), called = false;
+
+			function checkCalled ( input, options ) {
+				called = true;
+				assert.equal( options.foo, 'bar' );
+				return input;
+			}
+
+			task = source.pipe( function(s) { return s.transform( checkCalled, { foo: 'bar' } ); } ).build({
+				dest: 'tmp/output'
+			});
+
+			return task.then( function () {
+				assert.equal( called, true );
 			});
 		});
 	});
